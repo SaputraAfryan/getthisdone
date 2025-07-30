@@ -2,104 +2,194 @@
 namespace App\Controllers;
 
 use App\Models\ItemModel;
-use CodeIgniter\Controller;
+use CodeIgniter\HTTP\ResponseInterface;
 
 class ItemController extends BaseController
 {
+    protected $itemModel;
+
+    public function __construct()
+    {
+        $this->itemModel = new ItemModel();
+    }
+
     public function index()
     {
-        return view('item/index');
+        $data = [
+            'title' => 'Item Management'
+        ];
+        return view('item/index', $data);
     }
 
     public function ajax()
     {
-        $request = service('request');
-        $model = new ItemModel();
+        try {
+            $request = $this->request;
+            
+            // Validate request
+            if (!$request->isAJAX()) {
+                return $this->response->setStatusCode(400)->setJSON(['error' => 'Invalid request']);
+            }
 
-        $columns = ['id', 'id', 'name', 'code', 'updated_at'];
+            $columns = ['id', 'id', 'name', 'code', 'updated_at'];
 
-        $builder = $model->where('is_active', true);
+            $builder = $this->itemModel->where('is_active', true);
 
-        if (!empty($request->getPost('columns')[2]['search']['value'])) {
-            $builder->like('name', $request->getPost('columns')[1]['search']['value']);
+            // Handle column search
+            $columns_search = $request->getPost('columns');
+            if (!empty($columns_search[2]['search']['value'])) {
+                $builder->like('name', $columns_search[2]['search']['value']);
+            }
+
+            if (!empty($columns_search[3]['search']['value'])) {
+                $builder->like('code', $columns_search[3]['search']['value']);
+            }
+
+            // Global search
+            $search = $request->getPost('search');
+            if (!empty($search['value'])) {
+                $builder->groupStart()
+                       ->like('name', $search['value'])
+                       ->orLike('code', $search['value'])
+                       ->groupEnd();
+            }
+
+            $total = $builder->countAllResults(false);
+
+            // Handle ordering
+            $order = $request->getPost('order');
+            if (!empty($order)) {
+                $orderColumnIndex = intval($order[0]['column']);
+                $orderDirection = $order[0]['dir'] === 'desc' ? 'desc' : 'asc';
+                if (isset($columns[$orderColumnIndex])) {
+                    $builder->orderBy($columns[$orderColumnIndex], $orderDirection);
+                }
+            }
+
+            // Handle pagination
+            $start = intval($request->getPost('start') ?? 0);
+            $length = intval($request->getPost('length') ?? 10);
+            $builder->limit($length, $start);
+
+            $data = $builder->get()->getResultArray();
+
+            $result = [];
+            $no = $start + 1;
+
+            foreach ($data as $row) {
+                $lastUpdate = $row['updated_at'] ?: $row['created_at'];
+
+                $result[] = [
+                    'no' => $no++,
+                    'name' => esc($row['name']),
+                    'code' => esc($row['code']),
+                    'last_update' => $lastUpdate ? date('Y-m-d H:i:s', strtotime($lastUpdate)) : '-',
+                    'action' => view('item/_action', ['id' => $row['id']]),
+                ];
+            }
+
+            return $this->response->setJSON([
+                'draw' => intval($request->getPost('draw')),
+                'recordsTotal' => $total,
+                'recordsFiltered' => $total,
+                'data' => $result,
+            ]);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'ItemController::ajax error: ' . $e->getMessage());
+            return $this->response->setStatusCode(500)->setJSON(['error' => 'Internal server error']);
         }
-
-        if (!empty($request->getPost('columns')[3]['search']['value'])) {
-            $builder->like('code', $request->getPost('columns')[2]['search']['value']);
-        }
-
-        $total = $builder->countAllResults(false);
-
-        $orderColumnIndex = $request->getPost('order')[0]['column'];
-        $orderDirection = $request->getPost('order')[0]['dir'];
-        $builder->orderBy($columns[$orderColumnIndex], $orderDirection);
-
-        $start = $request->getPost('start');
-        $length = $request->getPost('length');
-        $builder->limit($length, $start);
-
-        $data = $builder->get()->getResultArray();
-
-        $result = [];
-        $no = $start + 1;
-
-        foreach ($data as $row) {
-            $lastUpdate = $row['updated_at'] ?: $row['created_at'];
-
-            $result[] = [
-                'no' => $no++,
-                'name' => $row['name'],
-                'code' => $row['code'],
-                'last_update' => date('Y-m-d H:i:s', strtotime($lastUpdate)),
-                'action' => view('item/_action', ['id' => $row['id']]),
-            ];
-        }
-
-        return $this->response->setJSON([
-            'draw' => $request->getPost('draw'),
-            'recordsTotal' => $total,
-            'recordsFiltered' => $total,
-            'data' => $result,
-        ]);
     }
 
     public function store()
     {
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'name' => 'required',
-            'code' => 'required|is_unique[items.code,id,{id}]'
-        ]);
+        try {
+            if (!$this->request->isAJAX()) {
+                return $this->response->setStatusCode(400)->setJSON(['error' => 'Invalid request']);
+            }
 
-        $data = $this->request->getPost();
-        if (!$validation->run($data)) {
+            $data = $this->request->getPost();
+            
+            // Sanitize input
+            $data['name'] = trim($data['name'] ?? '');
+            $data['code'] = trim($data['code'] ?? '');
+            $data['is_active'] = true;
+
+            if (!$this->itemModel->save($data)) {
+                return $this->response->setJSON([
+                    'status' => false,
+                    'errors' => $this->itemModel->errors()
+                ]);
+            }
+
             return $this->response->setJSON([
-                'status' => false,
-                'errors' => $validation->getErrors()
+                'status' => true,
+                'message' => !empty($data['id']) ? 'Item updated successfully' : 'Item created successfully'
             ]);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'ItemController::store error: ' . $e->getMessage());
+            return $this->response->setStatusCode(500)->setJSON(['error' => 'Internal server error']);
         }
-
-        $model = new ItemModel();
-        $model->save([
-            'id' => $data['id'] ?? null, // untuk update jika ada ID
-            'name' => $data['name'],
-            'code' => $data['code'],
-        ]);
-
-        return $this->response->setJSON(['status' => true]);
     }
 
     public function delete($id)
     {
-        $model = new ItemModel();
-        $model->delete($id); // soft delete
-        return $this->response->setJSON(['status' => true]);
+        try {
+            if (!$this->request->isAJAX()) {
+                return $this->response->setStatusCode(400)->setJSON(['error' => 'Invalid request']);
+            }
+
+            $id = intval($id);
+            if ($id <= 0) {
+                return $this->response->setStatusCode(400)->setJSON(['error' => 'Invalid ID']);
+            }
+
+            $item = $this->itemModel->find($id);
+            if (!$item) {
+                return $this->response->setStatusCode(404)->setJSON(['error' => 'Item not found']);
+            }
+
+            if (!$this->itemModel->delete($id)) {
+                return $this->response->setJSON([
+                    'status' => false,
+                    'message' => 'Failed to delete item'
+                ]);
+            }
+
+            return $this->response->setJSON([
+                'status' => true,
+                'message' => 'Item deleted successfully'
+            ]);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'ItemController::delete error: ' . $e->getMessage());
+            return $this->response->setStatusCode(500)->setJSON(['error' => 'Internal server error']);
+        }
     }
 
     public function get($id)
     {
-        $model = new ItemModel();
-        $item = $model->find($id);
-        return $this->response->setJSON($item);
+        try {
+            if (!$this->request->isAJAX()) {
+                return $this->response->setStatusCode(400)->setJSON(['error' => 'Invalid request']);
+            }
+
+            $id = intval($id);
+            if ($id <= 0) {
+                return $this->response->setStatusCode(400)->setJSON(['error' => 'Invalid ID']);
+            }
+
+            $item = $this->itemModel->find($id);
+            if (!$item) {
+                return $this->response->setStatusCode(404)->setJSON(['error' => 'Item not found']);
+            }
+
+            return $this->response->setJSON($item);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'ItemController::get error: ' . $e->getMessage());
+            return $this->response->setStatusCode(500)->setJSON(['error' => 'Internal server error']);
+        }
     }
 }

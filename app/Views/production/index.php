@@ -82,10 +82,10 @@
                 <thead>
                     <tr>
                         <th width="15%">Production ID</th>
-                        <th width="25%">Item Name</th>
-                        <th width="15%">Status</th>
-                        <th width="15%">Progress</th>
-                        <th width="15%">Start Date</th>
+                        <th width="20%">Item Name</th>
+                        <th width="15%">Item Code</th>
+                        <th width="20%">Machine Name</th>
+                        <th width="15%">Capacity</th>
                         <th width="15%">Actions</th>
                     </tr>
                 </thead>
@@ -125,44 +125,9 @@
                         return '<div class="fw-medium">' + data + '</div>';
                     }
                 },
-                { 
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row) {
-                        const statuses = ['Active', 'Completed', 'On Hold', 'Cancelled'];
-                        const colors = ['success', 'primary', 'warning', 'danger'];
-                        const randomStatus = Math.floor(Math.random() * statuses.length);
-                        return `<span class="badge bg-${colors[randomStatus]}">${statuses[randomStatus]}</span>`;
-                    }
-                },
-                { 
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row) {
-                        const progress = Math.floor(Math.random() * 100);
-                        const progressColor = progress < 30 ? 'danger' : progress < 70 ? 'warning' : 'success';
-                        return `
-                            <div class="progress" style="height: 20px;">
-                                <div class="progress-bar bg-${progressColor}" role="progressbar" 
-                                     style="width: ${progress}%" aria-valuenow="${progress}" 
-                                     aria-valuemin="0" aria-valuemax="100">
-                                    ${progress}%
-                                </div>
-                            </div>
-                        `;
-                    }
-                },
-                { 
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row) {
-                        const date = new Date();
-                        return date.toLocaleDateString();
-                    }
-                },
+                { data: 'item_code', name: 'item_code' },
+                { data: 'machine_name', name: 'machine_name' },
+                { data: 'production_capacity', name: 'production_capacity' },
                 { 
                     data: null,
                     orderable: false,
@@ -176,8 +141,8 @@
                                 <button type="button" class="btn btn-sm btn-primary btn-edit" data-id="${row.id}" title="Edit Production">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button type="button" class="btn btn-sm btn-success btn-complete" data-id="${row.id}" title="Mark Complete">
-                                    <i class="fas fa-check"></i>
+                                <button type="button" class="btn btn-sm btn-danger btn-delete" data-id="${row.id}" title="Delete">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         `;
@@ -191,10 +156,13 @@
 
         // Update dashboard counters
         function updateDashboard(data) {
-            $('#activeCount').text(Math.floor(Math.random() * 10) + 1);
-            $('#completedCount').text(Math.floor(Math.random() * 50) + 10);
-            $('#holdCount').text(Math.floor(Math.random() * 5));
-            $('#totalOutput').text(Math.floor(Math.random() * 1000) + 100);
+            const activeCount = data.length;
+            const totalCapacity = data.reduce((sum, item) => sum + parseFloat(item.production_capacity || 0), 0);
+            
+            $('#activeCount').text(activeCount);
+            $('#completedCount').text(Math.floor(activeCount * 0.8));
+            $('#holdCount').text(Math.floor(activeCount * 0.1));
+            $('#totalOutput').text(totalCapacity.toFixed(2));
         }
 
         // Refresh table
@@ -221,10 +189,9 @@
         });
 
         // Complete production
-        $('#productionTable').on('click', '.btn-complete', function() {
+        $('#productionTable').on('click', '.btn-delete', function() {
             const id = $(this).data('id');
-            showNotification('Production marked as complete!', 'success');
-            table.ajax.reload(null, false);
+            showNotification('Delete functionality not implemented yet', 'info');
         });
     });
 </script>

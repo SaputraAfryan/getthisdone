@@ -358,7 +358,7 @@
                 <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
                      style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
                     <i class="${icon} me-2"></i>
-                    ${message}
+                    ${$('<div>').text(message).html()}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             `);
@@ -369,6 +369,29 @@
                 notification.alert('close');
             }, 5000);
         }
+        
+        // Global error handler for AJAX requests
+        $(document).ajaxError(function(event, xhr, settings) {
+            if (xhr.status === 419) {
+                showNotification('Session expired. Please refresh the page.', 'error');
+            } else if (xhr.status === 500) {
+                showNotification('Server error occurred. Please try again.', 'error');
+            } else if (xhr.status === 404) {
+                showNotification('Resource not found.', 'error');
+            }
+        });
+        
+        // CSRF Token handling for AJAX requests
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    const token = $('meta[name="csrf-token"]').attr('content');
+                    if (token) {
+                        xhr.setRequestHeader("X-CSRF-TOKEN", token);
+                    }
+                }
+            }
+        });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"

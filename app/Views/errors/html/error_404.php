@@ -39,6 +39,7 @@
             border: 1px solid #efefef;
             border-radius: 0.5rem;
             position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         pre {
             white-space: normal;
@@ -53,6 +54,7 @@
         }
         p {
             margin-top: 1.5rem;
+            color: #666;
         }
         .footer {
             margin-top: 2rem;
@@ -65,19 +67,28 @@
         a:link,
         a:visited {
             color: #dd4814;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <div class="wrap">
         <h1>404</h1>
+        <h2>Page Not Found</h2>
 
         <p>
             <?php if (ENVIRONMENT !== 'production') : ?>
                 <?= nl2br(esc($message)) ?>
             <?php else : ?>
-                <?= lang('Errors.sorryCannotFind') ?>
+                The page you are looking for could not be found.
             <?php endif; ?>
+        </p>
+        
+        <p>
+            <a href="<?= base_url() ?>">← Back to Home</a>
         </p>
     </div>
 </body>

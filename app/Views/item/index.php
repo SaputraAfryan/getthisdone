@@ -232,22 +232,29 @@
             // Clear previous errors
             $('.form-control').removeClass('is-invalid');
             $('.invalid-feedback').text('');
+            
+            // Disable submit button to prevent double submission
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.html();
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Saving...');
 
             $.ajax({
                 url: '<?= base_url('item/store') ?>',
                 method: 'POST',
                 data: $(this).serialize(),
                 success: function (response) {
+                    submitBtn.prop('disabled', false).html(originalText);
+                    
                     if (response.status) {
                         modal.hide();
                         table.ajax.reload(null, false);
-                        const message = $('#item-id').val() ? 'Item updated successfully!' : 'Item created successfully!';
+                        const message = response.message || ($('#item-id').val() ? 'Item updated successfully!' : 'Item created successfully!');
                         showNotification(message, 'success');
                     } else {
                         // Show validation errors
                         if (response.errors) {
                             $.each(response.errors, function (field, message) {
-                                $('#' + field + '-error').text(message);
+                                $('#' + field + '-error').text(Array.isArray(message) ? message[0] : message);
                                 $('[name="' + field + '"]').addClass('is-invalid');
                             });
                         } else {
@@ -256,6 +263,7 @@
                     }
                 },
                 error: function () {
+                    submitBtn.prop('disabled', false).html(originalText);
                     showNotification('Error occurred while saving item', 'error');
                 }
             });
