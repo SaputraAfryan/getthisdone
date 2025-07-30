@@ -30,11 +30,13 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Search by Name</label>
-                    <input type="text" placeholder="Enter item name..." class="column-search form-control" data-column="2">
+                    <input type="text" placeholder="Enter item name..." class="column-search form-control"
+                        data-column="2">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Search by Code</label>
-                    <input type="text" placeholder="Enter item code..." class="column-search form-control" data-column="3">
+                    <input type="text" placeholder="Enter item code..." class="column-search form-control"
+                        data-column="3">
                 </div>
             </div>
         </div>
@@ -78,7 +80,8 @@
                         <i class="fas fa-tag me-1"></i>
                         Item Name
                     </label>
-                    <input type="text" class="form-control" name="name" id="item-name" placeholder="Enter item name" required>
+                    <input type="text" class="form-control" name="name" id="item-name" placeholder="Enter item name"
+                        required>
                     <div class="invalid-feedback" id="name-error"></div>
                 </div>
 
@@ -87,7 +90,8 @@
                         <i class="fas fa-barcode me-1"></i>
                         Item Code (SKU)
                     </label>
-                    <input type="text" class="form-control" name="code" id="item-code" placeholder="Enter item code" required>
+                    <input type="text" class="form-control" name="code" id="item-code" placeholder="Enter item code"
+                        required>
                     <div class="invalid-feedback" id="code-error"></div>
                 </div>
             </div>
@@ -120,7 +124,7 @@
             },
             ajax: {
                 url: '<?= base_url('item/ajax') ?>',
-                type: 'POST'
+                type: 'POST',
             },
             columns: [
                 { data: 'no', name: 'no', orderable: false, searchable: false },
@@ -171,7 +175,7 @@
         // Handle Delete Button Click (Delegated event)
         $('#itemTable').on('click', '.btn-delete', function () {
             const id = $(this).data('id');
-            
+
             // Create custom confirmation modal
             const confirmModal = `
                 <div class="modal fade" id="confirmModal" tabindex="-1">
@@ -197,12 +201,12 @@
                     </div>
                 </div>
             `;
-            
+
             $('body').append(confirmModal);
             const confirmModalInstance = new bootstrap.Modal(document.getElementById('confirmModal'));
             confirmModalInstance.show();
-            
-            $('#confirmDelete').on('click', function() {
+
+            $('#confirmDelete').on('click', function () {
                 $.ajax({
                     url: '<?= base_url('item/delete') ?>/' + id,
                     method: 'DELETE',
@@ -232,7 +236,7 @@
             // Clear previous errors
             $('.form-control').removeClass('is-invalid');
             $('.invalid-feedback').text('');
-            
+
             // Disable submit button to prevent double submission
             const submitBtn = $(this).find('button[type="submit"]');
             const originalText = submitBtn.html();
@@ -244,7 +248,7 @@
                 data: $(this).serialize(),
                 success: function (response) {
                     submitBtn.prop('disabled', false).html(originalText);
-                    
+
                     if (response.status) {
                         modal.hide();
                         table.ajax.reload(null, false);
@@ -273,10 +277,10 @@
         $('.column-search').on('keyup change', debounce(function () {
             const column = $(this).data('column');
             const value = this.value;
-            
+
             table.column(column).search(value).draw();
         }, 500));
-        
+
         // Debounce function for search
         function debounce(func, wait) {
             let timeout;
@@ -289,9 +293,9 @@
                 timeout = setTimeout(later, wait);
             };
         }
-        
+
         // Clear search filters
-        $('#clearFilters').on('click', function() {
+        $('#clearFilters').on('click', function () {
             $('.column-search').val('');
             table.search('').columns().search('').draw();
         });

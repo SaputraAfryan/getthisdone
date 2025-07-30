@@ -29,32 +29,32 @@ class MachineController extends BaseController
 
             $request = $this->request;
             $columns = ['id', 'name'];
-            
+
             $search = $request->getPost('search')['value'] ?? '';
             $start = intval($request->getPost('start') ?? 0);
             $length = intval($request->getPost('length') ?? 10);
-            
+
             $order = $request->getPost('order');
             $orderColumnIndex = intval($order[0]['column'] ?? 0);
             $orderColumn = $columns[$orderColumnIndex] ?? 'id';
             $orderDir = ($order[0]['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
 
             $builder = $this->machineModel;
-            
+
             if (!empty($search)) {
                 $builder = $builder->like('name', $search);
             }
 
             $total = $this->machineModel->countAll();
             $filtered = $builder->countAllResults(false);
-            
+
             $data = $builder->orderBy($orderColumn, $orderDir)->findAll($length, $start);
 
             return $this->response->setJSON([
                 'draw' => intval($request->getPost('draw')),
                 'recordsTotal' => $total,
                 'recordsFiltered' => $filtered,
-                'data' => array_map(function($item) {
+                'data' => array_map(function ($item) {
                     return [
                         'id' => $item['id'],
                         'item_name' => esc($item['name']),
@@ -63,7 +63,7 @@ class MachineController extends BaseController
                     ];
                 }, $data)
             ]);
-            
+
         } catch (\Exception $e) {
             log_message('error', 'MachineController::ajax error: ' . $e->getMessage());
             return $this->response->setStatusCode(500)->setJSON(['error' => 'Internal server error']);

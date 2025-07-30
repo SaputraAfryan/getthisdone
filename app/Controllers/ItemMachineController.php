@@ -35,11 +35,11 @@ class ItemMachineController extends BaseController
 
             $request = $this->request;
             $columns = ['item_machines.id', 'items.name'];
-            
+
             $search = $request->getPost('search')['value'] ?? '';
             $start = intval($request->getPost('start') ?? 0);
             $length = intval($request->getPost('length') ?? 10);
-            
+
             $order = $request->getPost('order');
             $orderColumnIndex = intval($order[0]['column'] ?? 0);
             $orderColumn = $columns[$orderColumnIndex] ?? 'item_machines.id';
@@ -47,27 +47,27 @@ class ItemMachineController extends BaseController
 
             // Get total count
             $total = $this->itemMachineModel->countItemMachines();
-            
+
             // Get filtered count
             $filtered = $this->itemMachineModel->countItemMachines($search);
-            
+
             // Get data with details
             $data = $this->itemMachineModel->getItemMachinesWithDetails($length, $start);
 
             // Apply search filter to the query if needed
             if (!empty($search)) {
                 $builder = $this->itemMachineModel->select('item_machines.*, items.name as item_name, items.code as item_code, machines.name as machine_name')
-                                                 ->join('items', 'items.id = item_machines.item_id', 'left')
-                                                 ->join('machines', 'machines.id = item_machines.machine_id', 'left')
-                                                 ->where('item_machines.deleted_at', null)
-                                                 ->groupStart()
-                                                 ->like('items.name', $search)
-                                                 ->orLike('items.code', $search)
-                                                 ->orLike('machines.name', $search)
-                                                 ->groupEnd()
-                                                 ->orderBy($orderColumn, $orderDir)
-                                                 ->limit($length, $start);
-                
+                    ->join('items', 'items.id = item_machines.item_id', 'left')
+                    ->join('machines', 'machines.id = item_machines.machine_id', 'left')
+                    ->where('item_machines.deleted_at', null)
+                    ->groupStart()
+                    ->like('items.name', $search)
+                    ->orLike('items.code', $search)
+                    ->orLike('machines.name', $search)
+                    ->groupEnd()
+                    ->orderBy($orderColumn, $orderDir)
+                    ->limit($length, $start);
+
                 $data = $builder->get()->getResultArray();
             }
 
@@ -75,7 +75,7 @@ class ItemMachineController extends BaseController
                 'draw' => intval($request->getPost('draw')),
                 'recordsTotal' => $total,
                 'recordsFiltered' => $filtered,
-                'data' => array_map(function($item) {
+                'data' => array_map(function ($item) {
                     return [
                         'id' => $item['id'],
                         'item_name' => esc($item['item_name'] ?? 'Unknown Item'),
@@ -86,7 +86,7 @@ class ItemMachineController extends BaseController
                     ];
                 }, $data)
             ]);
-            
+
         } catch (\Exception $e) {
             log_message('error', 'ItemMachineController::ajax error: ' . $e->getMessage());
             return $this->response->setStatusCode(500)->setJSON(['error' => 'Internal server error']);

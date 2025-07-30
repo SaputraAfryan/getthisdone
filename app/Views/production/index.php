@@ -110,7 +110,7 @@
             ajax: {
                 url: '<?= base_url('production/ajax') ?>',
                 type: 'POST',
-                dataSrc: function(json) {
+                dataSrc: function (json) {
                     // Update dashboard counters
                     updateDashboard(json.data);
                     return json.data;
@@ -118,21 +118,21 @@
             },
             columns: [
                 { data: 'id', name: 'id' },
-                { 
-                    data: 'item_name', 
+                {
+                    data: 'item_name',
                     name: 'item_name',
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         return '<div class="fw-medium">' + data + '</div>';
                     }
                 },
                 { data: 'item_code', name: 'item_code' },
                 { data: 'machine_name', name: 'machine_name' },
                 { data: 'production_capacity', name: 'production_capacity' },
-                { 
+                {
                     data: null,
                     orderable: false,
                     searchable: false,
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         return `
                             <div class="action-buttons">
                                 <button type="button" class="btn btn-sm btn-info btn-view" data-id="${row.id}" title="View Details">
@@ -158,7 +158,7 @@
         function updateDashboard(data) {
             const activeCount = data.length;
             const totalCapacity = data.reduce((sum, item) => sum + parseFloat(item.production_capacity || 0), 0);
-            
+
             $('#activeCount').text(activeCount);
             $('#completedCount').text(Math.floor(activeCount * 0.8));
             $('#holdCount').text(Math.floor(activeCount * 0.1));
@@ -166,30 +166,30 @@
         }
 
         // Refresh table
-        $('#refreshTable').on('click', function() {
+        $('#refreshTable').on('click', function () {
             table.ajax.reload();
             showNotification('Table refreshed successfully!', 'success');
         });
 
         // Add new production
-        $('#btn-add-production').on('click', function() {
+        $('#btn-add-production').on('click', function () {
             showNotification('Add production functionality not implemented yet', 'info');
         });
 
         // View production details
-        $('#productionTable').on('click', '.btn-view', function() {
+        $('#productionTable').on('click', '.btn-view', function () {
             const id = $(this).data('id');
             showNotification('View functionality not implemented yet', 'info');
         });
 
         // Edit production
-        $('#productionTable').on('click', '.btn-edit', function() {
+        $('#productionTable').on('click', '.btn-edit', function () {
             const id = $(this).data('id');
             showNotification('Edit functionality not implemented yet', 'info');
         });
 
         // Complete production
-        $('#productionTable').on('click', '.btn-delete', function() {
+        $('#productionTable').on('click', '.btn-delete', function () {
             const id = $(this).data('id');
             showNotification('Delete functionality not implemented yet', 'info');
         });

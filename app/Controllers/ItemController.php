@@ -25,7 +25,7 @@ class ItemController extends BaseController
     {
         try {
             $request = $this->request;
-            
+
             // Validate request
             if (!$request->isAJAX()) {
                 return $this->response->setStatusCode(400)->setJSON(['error' => 'Invalid request']);
@@ -49,9 +49,9 @@ class ItemController extends BaseController
             $search = $request->getPost('search');
             if (!empty($search['value'])) {
                 $builder->groupStart()
-                       ->like('name', $search['value'])
-                       ->orLike('code', $search['value'])
-                       ->groupEnd();
+                    ->like('name', $search['value'])
+                    ->orLike('code', $search['value'])
+                    ->groupEnd();
             }
 
             $total = $builder->countAllResults(false);
@@ -94,8 +94,9 @@ class ItemController extends BaseController
                 'recordsFiltered' => $total,
                 'data' => $result,
             ]);
-            
+
         } catch (\Exception $e) {
+            // dd($e);
             log_message('error', 'ItemController::ajax error: ' . $e->getMessage());
             return $this->response->setStatusCode(500)->setJSON(['error' => 'Internal server error']);
         }
@@ -109,7 +110,8 @@ class ItemController extends BaseController
             }
 
             $data = $this->request->getPost();
-            
+            dd($data);
+
             // Sanitize input
             $data['name'] = trim($data['name'] ?? '');
             $data['code'] = trim($data['code'] ?? '');
@@ -126,7 +128,7 @@ class ItemController extends BaseController
                 'status' => true,
                 'message' => !empty($data['id']) ? 'Item updated successfully' : 'Item created successfully'
             ]);
-            
+
         } catch (\Exception $e) {
             log_message('error', 'ItemController::store error: ' . $e->getMessage());
             return $this->response->setStatusCode(500)->setJSON(['error' => 'Internal server error']);
@@ -161,7 +163,7 @@ class ItemController extends BaseController
                 'status' => true,
                 'message' => 'Item deleted successfully'
             ]);
-            
+
         } catch (\Exception $e) {
             log_message('error', 'ItemController::delete error: ' . $e->getMessage());
             return $this->response->setStatusCode(500)->setJSON(['error' => 'Internal server error']);
@@ -186,7 +188,7 @@ class ItemController extends BaseController
             }
 
             return $this->response->setJSON($item);
-            
+
         } catch (\Exception $e) {
             log_message('error', 'ItemController::get error: ' . $e->getMessage());
             return $this->response->setStatusCode(500)->setJSON(['error' => 'Internal server error']);

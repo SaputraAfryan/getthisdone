@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <title><?= $title ?? 'Dashboard' ?></title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -36,7 +37,7 @@
 
         .navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .navbar-brand {
@@ -46,7 +47,7 @@
         }
 
         .navbar-nav .nav-link {
-            color: rgba(255,255,255,0.9) !important;
+            color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 500;
             padding: 0.75rem 1rem !important;
             border-radius: 0.375rem;
@@ -56,7 +57,7 @@
 
         .navbar-nav .nav-link:hover,
         .navbar-nav .nav-link.active {
-            background-color: rgba(255,255,255,0.2);
+            background-color: rgba(255, 255, 255, 0.2);
             color: white !important;
             transform: translateY(-1px);
         }
@@ -70,7 +71,7 @@
             border-radius: 0.75rem;
             padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             border-left: 4px solid var(--primary-color);
         }
 
@@ -98,12 +99,12 @@
         .card {
             border: none;
             border-radius: 0.75rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             transition: all 0.3s ease;
         }
 
         .card:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
             transform: translateY(-2px);
         }
 
@@ -116,7 +117,7 @@
 
         .btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.15);
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
         }
 
         .btn-primary {
@@ -160,7 +161,7 @@
         .modal-content {
             border: none;
             border-radius: 0.75rem;
-            box-shadow: 0 1rem 3rem rgba(0,0,0,0.175);
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
         }
 
         .modal-header {
@@ -224,7 +225,7 @@
             border-radius: 0.75rem;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         }
 
         .action-buttons {
@@ -244,7 +245,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255,255,255,0.8);
+            background: rgba(255, 255, 255, 0.8);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -260,20 +261,20 @@
             .container {
                 padding: 0.75rem;
             }
-            
+
             .page-header {
                 padding: 1.5rem;
                 margin-bottom: 1.5rem;
             }
-            
+
             .page-header h1 {
                 font-size: 1.5rem;
             }
-            
+
             .action-buttons {
                 flex-direction: column;
             }
-            
+
             .btn-sm {
                 width: 100%;
                 margin-bottom: 0.25rem;
@@ -304,19 +305,22 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link <?= (current_url() == base_url('item')) ? 'active' : '' ?>" href="<?= base_url('item') ?>">
+                        <a class="nav-link <?= (current_url() == base_url('item')) ? 'active' : '' ?>"
+                            href="<?= base_url('item') ?>">
                             <i class="fas fa-box me-1"></i>
                             Items
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= (current_url() == base_url('machine')) ? 'active' : '' ?>" href="<?= base_url('machine') ?>">
+                        <a class="nav-link <?= (current_url() == base_url('machine')) ? 'active' : '' ?>"
+                            href="<?= base_url('machine') ?>">
                             <i class="fas fa-cog me-1"></i>
                             Machines
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= (current_url() == base_url('production')) ? 'active' : '' ?>" href="<?= base_url('production') ?>">
+                        <a class="nav-link <?= (current_url() == base_url('production')) ? 'active' : '' ?>"
+                            href="<?= base_url('production') ?>">
                             <i class="fas fa-industry me-1"></i>
                             Production
                         </a>
@@ -343,9 +347,9 @@
         }
 
         // Global AJAX setup
-        $(document).ajaxStart(function() {
+        $(document).ajaxStart(function () {
             showLoading();
-        }).ajaxStop(function() {
+        }).ajaxStop(function () {
             hideLoading();
         });
 
@@ -353,7 +357,7 @@
         function showNotification(message, type = 'success') {
             const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
             const icon = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-            
+
             const notification = $(`
                 <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
                      style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
@@ -362,16 +366,16 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             `);
-            
+
             $('body').append(notification);
-            
+
             setTimeout(() => {
                 notification.alert('close');
             }, 5000);
         }
-        
+
         // Global error handler for AJAX requests
-        $(document).ajaxError(function(event, xhr, settings) {
+        $(document).ajaxError(function (event, xhr, settings) {
             if (xhr.status === 419) {
                 showNotification('Session expired. Please refresh the page.', 'error');
             } else if (xhr.status === 500) {
@@ -380,10 +384,10 @@
                 showNotification('Resource not found.', 'error');
             }
         });
-        
+
         // CSRF Token handling for AJAX requests
         $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
+            beforeSend: function (xhr, settings) {
                 if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
                     const token = $('meta[name="csrf-token"]').attr('content');
                     if (token) {
@@ -400,6 +404,107 @@
 
     <script src="https://cdn.datatables.net/v/bs5/dt-2.0.8/datatables.min.js"></script>
 
+    <script>
+        $(document).ready(function () {
+            const table = $('#item-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '<?= site_url('item/ajax') ?>',
+                    type: 'POST',
+                },
+                columns: [
+                    { data: 'no' },
+                    { data: 'action', orderable: false, searchable: false },
+                    { data: 'name' },
+                    { data: 'code' },
+                    { data: 'last_update' },
+                ]
+            });
+
+            // ========== HANDLE EDIT ==========
+            $('#item-table').on('click', '.btn-edit', function () {
+                const id = $(this).data('id');
+
+                $.ajax({
+                    url: '<?= site_url('item/get') ?>/' + id,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (res) {
+                        $('#itemModalLabel').text('Edit Item');
+                        $('#item-form')[0].reset();
+                        $('#item-form [name=id]').val(res.id);
+                        $('#item-form [name=name]').val(res.name);
+                        $('#item-form [name=code]').val(res.code);
+                        $('#itemModal').modal('show');
+                    },
+                    error: function (xhr) {
+                        alert('Failed to fetch item');
+                    }
+                });
+            });
+
+            // ========== HANDLE DELETE ==========
+            $('#item-table').on('click', '.btn-delete', function () {
+                const id = $(this).data('id');
+
+                if (confirm('Are you sure you want to delete this item?')) {
+                    $.ajax({
+                        url: '<?= site_url('item/delete') ?>/' + id,
+                        method: 'DELETE',
+                        dataType: 'json',
+                        success: function (res) {
+                            if (res.status) {
+                                alert(res.message);
+                                table.ajax.reload();
+                            } else {
+                                alert(res.message || 'Delete failed');
+                            }
+                        },
+                        error: function (xhr) {
+                            alert('Delete error');
+                        }
+                    });
+                }
+            });
+
+            // ========== HANDLE SUBMIT (CREATE/UPDATE) ==========
+            $('#item-form').on('submit', function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: '<?= site_url('item/store') ?>',
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.status) {
+                            $('#itemModal').modal('hide');
+                            table.ajax.reload();
+                        } else {
+                            // handle error validation
+                            let errorText = '';
+                            $.each(res.errors, function (field, msg) {
+                                errorText += msg + "\n";
+                            });
+                            alert(errorText);
+                        }
+                    },
+                    error: function () {
+                        alert('Submit error');
+                    }
+                });
+            });
+
+            // ========== HANDLE CREATE BUTTON ==========
+            $('#btn-add-item').on('click', function () {
+                $('#itemModalLabel').text('Add Item');
+                $('#item-form')[0].reset();
+                $('#item-form [name=id]').val('');
+                $('#itemModal').modal('show');
+            });
+        });
+    </script>
 </body>
 
 </html>

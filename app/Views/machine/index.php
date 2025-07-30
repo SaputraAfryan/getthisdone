@@ -61,26 +61,26 @@
             },
             columns: [
                 { data: 'id', name: 'id' },
-                { 
-                    data: 'item_name', 
+                {
+                    data: 'item_name',
                     name: 'item_name',
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         return '<div class="fw-medium">' + data + '</div>';
                     }
                 },
-                { 
+                {
                     data: null,
                     orderable: false,
                     searchable: false,
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         return '<span class="badge bg-success">Active</span>';
                     }
                 },
-                { 
+                {
                     data: null,
                     orderable: false,
                     searchable: false,
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         return `
                             <div class="action-buttons">
                                 <button type="button" class="btn btn-sm btn-info btn-view" data-id="${row.id}" title="View Details">
@@ -100,19 +100,19 @@
         });
 
         // Refresh table
-        $('#refreshTable').on('click', function() {
+        $('#refreshTable').on('click', function () {
             table.ajax.reload();
             showNotification('Table refreshed successfully!', 'success');
         });
 
         // View machine details
-        $('#machineTable').on('click', '.btn-view', function() {
+        $('#machineTable').on('click', '.btn-view', function () {
             const id = $(this).data('id');
             showNotification('View functionality not implemented yet', 'info');
         });
 
         // Edit machine
-        $('#machineTable').on('click', '.btn-edit', function() {
+        $('#machineTable').on('click', '.btn-edit', function () {
             const id = $(this).data('id');
             showNotification('Edit functionality not implemented yet', 'info');
         });
