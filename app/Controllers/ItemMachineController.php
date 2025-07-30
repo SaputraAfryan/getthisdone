@@ -1,7 +1,7 @@
 <?php
 namespace App\Controllers;
 
-use App\Models\ItemModel;
+use App\Models\ItemMachineModel;
 
 class ItemMachineController extends BaseController
 {
@@ -12,10 +12,10 @@ class ItemMachineController extends BaseController
 
     public function ajax()
     {
-        $model = new ItemModel();
+        $model = new ItemMachineModel();
         $request = service('request');
 
-        $columns = ['id', 'item_name'];
+        $columns = ['id', 'name'];
         $search = $request->getPost('search')['value'] ?? '';
         $start = $request->getPost('start') ?? 0;
         $length = $request->getPost('length') ?? 10;
@@ -23,7 +23,7 @@ class ItemMachineController extends BaseController
         $orderDir = $request->getPost('order')[0]['dir'] ?? 'asc';
 
         if ($search) {
-            $model->like('item_name', $search);
+            $model->like('name', $search);
         }
 
         $total = $model->countAll();
@@ -34,7 +34,12 @@ class ItemMachineController extends BaseController
             'draw' => intval($request->getPost('draw')),
             'recordsTotal' => $total,
             'recordsFiltered' => $filtered,
-            'data' => $data
+            'data' => array_map(function($item) {
+                return [
+                    'id' => $item['id'],
+                    'item_name' => $item['name'] // Map name to item_name for consistency
+                ];
+            }, $data)
         ]);
     }
 }

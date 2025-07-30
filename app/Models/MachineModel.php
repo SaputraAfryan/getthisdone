@@ -6,10 +6,10 @@ use CodeIgniter\Model;
 
 class MachineModel extends Model
 {
-    protected $table = 'items';
+    protected $table = 'machines';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['name', 'description', 'price'];
-    protected $useSoftDeletes = false;
+    protected $allowedFields = ['name', 'description'];
+    protected $useSoftDeletes = true;
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';

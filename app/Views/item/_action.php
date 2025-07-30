@@ -7,17 +7,3 @@
         <i class="fas fa-trash-alt"></i> Delete
     </button>
 </div>
-
-<script>
-    $('#table-item').on('click', '.btn-edit', function () {
-        let id = $(this).data('id');
-        // Buka modal dan isi data item dengan id ini via AJAX
-    });
-
-    $('#table-item').on('click', '.btn-delete', function () {
-        let id = $(this).data('id');
-        if (confirm('Yakin ingin menghapus data ini?')) {
-            // Kirim AJAX DELETE ke endpoint soft delete
-        }
-    });
-</script>

@@ -28,6 +28,7 @@
     </tbody>
 </table>
 
+<!-- Modal untuk Add/Edit Item -->
 <div class="modal fade" id="modal-item" tabindex="-1" aria-labelledby="modal-item-label" aria-hidden="true">
     <div class="modal-dialog">
         <form id="form-item" class="modal-content">
@@ -42,11 +43,13 @@
                 <div class="mb-3">
                     <label for="item-name" class="form-label">Nama Item</label>
                     <input type="text" class="form-control" name="name" id="item-name" required>
+                    <div class="invalid-feedback" id="name-error"></div>
                 </div>
 
                 <div class="mb-3">
                     <label for="item-code" class="form-label">Kode SKU</label>
                     <input type="text" class="form-control" name="code" id="item-code" required>
+                    <div class="invalid-feedback" id="code-error"></div>
                 </div>
             </div>
 
@@ -61,10 +64,13 @@
 <script>
     $(document).ready(function () {
         // Initialize DataTable
-        let table = $('#itemTable').DataTable({ // Changed table ID to itemTable
+        let table = $('#itemTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '/item/data',
+            ajax: {
+                url: '<?= base_url('item/ajax') ?>',
+                type: 'POST'
+            },
             columns: [
                 { data: 'no', name: 'no', orderable: false, searchable: false },
                 { data: 'action', name: 'action', orderable: false, searchable: false },
@@ -80,22 +86,26 @@
 
         // Handle Add Button Click
         $('#btn-add').on('click', function () {
-            $('#form-item')[0].reset(); // Reset the form
-            $('#item-id').val(''); // Clear hidden ID
-            $('#modal-item-label').text('Tambah Item'); // Set modal title
-            modal.show(); // Show the modal
+            $('#form-item')[0].reset();
+            $('#item-id').val('');
+            $('#modal-item-label').text('Tambah Item');
+            $('.form-control').removeClass('is-invalid');
+            $('.invalid-feedback').text('');
+            modal.show();
         });
 
-        // Handle Edit Button Click (Delegated event for dynamically added buttons)
+        // Handle Edit Button Click (Delegated event)
         $('#itemTable').on('click', '.btn-edit', function () {
             const id = $(this).data('id');
 
-            $.get(`/item/${id}`, function (res) {
+            $.get('<?= base_url('item/get') ?>/' + id, function (res) {
                 if (res) {
                     $('#item-id').val(res.id);
                     $('#item-name').val(res.name);
                     $('#item-code').val(res.code);
                     $('#modal-item-label').text('Edit Item');
+                    $('.form-control').removeClass('is-invalid');
+                    $('.invalid-feedback').text('');
                     modal.show();
                 } else {
                     alert('Item not found!');
@@ -105,38 +115,60 @@
             });
         });
 
+        // Handle Delete Button Click (Delegated event)
+        $('#itemTable').on('click', '.btn-delete', function () {
+            const id = $(this).data('id');
+            
+            if (confirm('Yakin ingin menghapus data ini?')) {
+                $.ajax({
+                    url: '<?= base_url('item/delete') ?>/' + id,
+                    method: 'DELETE',
+                    success: function (response) {
+                        if (response.status) {
+                            table.ajax.reload(null, false);
+                            alert('Data berhasil dihapus');
+                        } else {
+                            alert('Gagal menghapus data');
+                        }
+                    },
+                    error: function () {
+                        alert('Terjadi kesalahan saat menghapus data');
+                    }
+                });
+            }
+        });
+
         // Handle Form Submission (Add/Edit)
         $('#form-item').on('submit', function (e) {
-            e.preventDefault(); // Prevent default form submission
+            e.preventDefault();
 
-            const id = $('#item-id').val();
-            const url = id ? `/item/${id}` : '/item';
-            const method = id ? 'PUT' : 'POST'; // This is important for RESTful APIs
-
-            // Serialize the form data
-            let formData = $(this).serialize();
-
-            // Append _method for PUT requests if using a framework that needs it (like CodeIgniter for form method spoofing)
-            if (method === 'PUT') {
-                formData += '&_method=PUT';
-            }
+            // Clear previous errors
+            $('.form-control').removeClass('is-invalid');
+            $('.invalid-feedback').text('');
 
             $.ajax({
-                url: url,
-                method: 'POST', // Always use POST for jQuery.ajax, and let the _method parameter handle the actual HTTP method if needed by your backend framework
-                data: formData,
+                url: '<?= base_url('item/store') ?>',
+                method: 'POST',
+                data: $(this).serialize(),
                 success: function (response) {
-                    // Assuming your backend sends a success response
-                    if (response && response.status === 'success') {
-                        modal.hide(); // Hide the modal
-                        table.ajax.reload(null, false); // Reload DataTable, keeping current paging
+                    if (response.status) {
+                        modal.hide();
+                        table.ajax.reload(null, false);
+                        alert('Data berhasil disimpan');
                     } else {
-                        alert(response.message || 'Terjadi kesalahan saat menyimpan data.');
+                        // Show validation errors
+                        if (response.errors) {
+                            $.each(response.errors, function (field, message) {
+                                $('#' + field + '-error').text(message);
+                                $('[name="' + field + '"]').addClass('is-invalid');
+                            });
+                        } else {
+                            alert('Terjadi kesalahan saat menyimpan data');
+                        }
                     }
                 },
-                error: function (xhr, status, error) {
-                    console.error("AJAX Error:", status, error, xhr.responseText);
-                    alert('Terjadi kesalahan saat menyimpan data. Silakan coba lagi.');
+                error: function () {
+                    alert('Terjadi kesalahan saat menyimpan data');
                 }
             });
         });
