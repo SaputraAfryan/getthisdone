@@ -1,6 +1,32 @@
 # Disable directory browsing
 Options -Indexes
 
+# Security Headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+</IfModule>
+
+# Hide server information
+ServerTokens Prod
+ServerSignature Off
+
+# Prevent access to sensitive files
+<FilesMatch "\.(env|ini|log|sh|sql|conf|yml|yaml)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Prevent access to CodeIgniter system files
+<FilesMatch "^(spark|builds|composer\.(json|lock)|phpunit\.xml)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
 # ----------------------------------------------------------------------
 # Rewrite engine
 # ----------------------------------------------------------------------
