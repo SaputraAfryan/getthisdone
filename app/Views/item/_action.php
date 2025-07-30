@@ -1,9 +1,9 @@
-<div class="btn-group" role="group" aria-label="Action Buttons">
-    <button type="button" class="btn btn-sm btn-primary btn-edit" data-id="<?= esc($id) ?>" title="Edit">
-        <i class="fas fa-edit"></i> Edit
+<div class="action-buttons">
+    <button type="button" class="btn btn-sm btn-primary btn-edit" data-id="<?= esc($id) ?>" title="Edit Item">
+        <i class="fas fa-edit"></i>
     </button>
 
-    <button type="button" class="btn btn-sm btn-danger btn-delete" data-id="<?= esc($id) ?>" title="Delete">
-        <i class="fas fa-trash-alt"></i> Delete
+    <button type="button" class="btn btn-sm btn-danger btn-delete" data-id="<?= esc($id) ?>" title="Delete Item">
+        <i class="fas fa-trash-alt"></i>
     </button>
 </div>
